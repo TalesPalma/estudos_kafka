@@ -43,7 +43,6 @@ func NewKafkaProducer() kafkaProducer {
 
 func (producer *kafkaProducer) SendMsg(msg []byte, topico string) {
 
-	// envia a mensagem topico que recebe objetos
 	err := producer.p.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topico, Partition: kafka.PartitionAny},
 		Value:          msg},

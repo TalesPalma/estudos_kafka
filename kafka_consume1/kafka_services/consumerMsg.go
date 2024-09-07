@@ -5,6 +5,9 @@ import (
 	"log"
 	"time"
 
+	databaseusers "github.com/TalesPalma/kafka_consume/databaseUsers"
+	logservice "github.com/TalesPalma/kafka_consume2/logService"
+	"github.com/TalesPalma/models"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
@@ -55,6 +58,15 @@ func (k *KafkaConsumer) GetMessages() {
 		// else if check for timeout erro
 		if err == nil {
 			log.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+
+			if *msg.TopicPartition.Topic == "validation" {
+				logservice.Logservice(string(msg.Value))
+			} else {
+				var newPerson models.Person
+				newPerson.UnmarshalJson(msg.Value)
+				fmt.Printf("Name: %s\n age: %d", newPerson.Name, newPerson.Age)
+				databaseusers.SaveUsersLogs(newPerson)
+			}
 		} else if !err.(kafka.Error).IsTimeout() {
 			log.Printf("Consumer error: %v (%v)\n", err, msg)
 		}

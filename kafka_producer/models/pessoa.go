@@ -10,3 +10,7 @@ type Person struct {
 func (p *Person) MarshalJson() ([]byte, error) {
 	return json.Marshal(p)
 }
+
+func (p *Person) UnmarshalJson(data []byte) error {
+	return json.Unmarshal(data, p)
+}
