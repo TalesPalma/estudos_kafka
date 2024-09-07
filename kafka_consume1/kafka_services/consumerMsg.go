@@ -31,17 +31,7 @@ func NewKafkaConsumer(groupId string) *KafkaConsumer {
 
 	//Subscribe to topic
 	if groupId == "myGroup1" {
-		err = c.SubscribeTopics([]string{topic}, func(c *kafka.Consumer, e kafka.Event) error {
-			switch ev := e.(type) {
-			case kafka.AssignedPartitions:
-				fmt.Printf("Assigned partitions: %v\n", ev.Partitions)
-				c.Assign(ev.Partitions)
-			case kafka.RevokedPartitions:
-				fmt.Printf("Revoked partitions: %v\n", ev.Partitions)
-				c.Unassign()
-			}
-			return nil
-		})
+		err = c.SubscribeTopics([]string{topic}, balaceAdorConsumer)
 
 	} else {
 		err = c.SubscribeTopics([]string{"validation"}, nil)
@@ -76,4 +66,17 @@ func (k *KafkaConsumer) GetMessages() {
 		log.Fatalf("Failed to close consumer: %s", err)
 	}
 
+}
+
+// Balacea o consumer nas particoes atualizadas pelo kafka
+func balaceAdorConsumer(c *kafka.Consumer, e kafka.Event) error {
+	switch ev := e.(type) {
+	case kafka.AssignedPartitions:
+		fmt.Printf("Assigned partitions: %v\n", ev.Partitions)
+		c.Assign(ev.Partitions)
+	case kafka.RevokedPartitions:
+		fmt.Printf("Revoked partitions: %v\n", ev.Partitions)
+		c.Unassign()
+	}
+	return nil
 }
