@@ -1,0 +1,7 @@
+go 1.23.0
+
+use (
+	./kafka_consume1
+	./kafka_consume2
+	./kafka_producer
+)
