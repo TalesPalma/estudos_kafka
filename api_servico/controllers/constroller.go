@@ -5,6 +5,7 @@ import (
 
 	"github.com/TalesPalma/database"
 	"github.com/TalesPalma/database/models"
+	kafkaservices "github.com/TalesPalma/kafkaServices"
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,6 +40,7 @@ func PostProducts(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusCreated, product)
+		kafkaservices.Producer.SendMsg(product.MarshalJson())
 	}
 
 }

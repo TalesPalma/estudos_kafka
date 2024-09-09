@@ -1,6 +1,9 @@
 package models
 
 import (
+	"encoding/json"
+	"log"
+
 	"gorm.io/gorm"
 )
 
@@ -17,4 +20,12 @@ func (p *Product) IsEmpty() bool {
 		return true
 	}
 	return false
+}
+
+func (p *Product) MarshalJson() []byte {
+	marshal, err := json.Marshal(p)
+	if err != nil {
+		log.Fatalf("Erro ao empacotar os dados: %v", err)
+	}
+	return marshal
 }

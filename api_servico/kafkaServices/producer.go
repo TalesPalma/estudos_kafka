@@ -17,6 +17,12 @@ type kafkaProducer struct {
 	topic string
 }
 
+var Producer kafkaProducer
+
+func InitKafka() {
+	Producer = NewKafkaProducer()
+}
+
 func NewKafkaProducer() kafkaProducer {
 	hostName, err := os.Hostname() // pega o nome do host para o kafka
 
@@ -41,8 +47,9 @@ func NewKafkaProducer() kafkaProducer {
 
 }
 
-func (producer *kafkaProducer) SendMsg(msg []byte, topico string) {
+func (producer *kafkaProducer) SendMsg(msg []byte) {
 
+	topico := Topic
 	err := producer.p.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topico, Partition: kafka.PartitionAny},
 		Value:          msg},
