@@ -1,1 +1,2 @@
 2024-09-09 19:16:53 PM: {"ID":3,"CreatedAt":"2024-09-09T19:16:53.627641802-03:00","UpdatedAt":"2024-09-09T19:16:53.627641802-03:00","DeletedAt":null,"code":"2312","name":"tales","price":20,"description":"Tales lindo demais"}
+2024-09-09 19:55:44 PM: {"ID":4,"CreatedAt":"2024-09-09T19:55:44.441163745-03:00","UpdatedAt":"2024-09-09T19:55:44.441163745-03:00","DeletedAt":null,"code":"31231234","name":"novo produto","price":22,"description":"produto de qualdiade alta"}

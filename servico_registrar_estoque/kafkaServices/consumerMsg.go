@@ -5,6 +5,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/TalesPalma/kafka_consume/database"
+	"github.com/TalesPalma/kafka_consume/database/models"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
@@ -47,9 +49,10 @@ func (k *KafkaConsumer) GetMessages() {
 		msg, err := k.consumer.ReadMessage(time.Second) // wait for message for 1 second
 
 		// check for errors and print message
-		// else if check for timeout erro
+		// else if check for timeout err
 		if err == nil {
 			log.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+			insertProductDatabase(msg.Value)
 		} else if !err.(kafka.Error).IsTimeout() {
 			log.Printf("Consumer error: %v (%v)\n", err, msg)
 		}
@@ -74,4 +77,13 @@ func balaceAdorConsumer(c *kafka.Consumer, e kafka.Event) error {
 		c.Unassign()
 	}
 	return nil
+}
+
+func insertProductDatabase(msg []byte) {
+	var product models.Product
+	product.Unmarshal(msg)
+	err := database.DB.Create(&product)
+	if err == nil {
+		log.Println("Product inserido do banco de dados")
+	}
 }
