@@ -1,11 +1,9 @@
 package main
 
-import (
-	kafkaservices "github.com/TalesPalma/kafka_consume/kafka_services"
-)
+import kafkaservices "github.com/TalesPalma/kafka_consume2/kafkaServices"
 
 const (
-	groupId = "myGroup2"
+	groupId = "logGroup"
 )
 
 func main() {

@@ -5,15 +5,13 @@ import (
 	"log"
 	"time"
 
-	databaseusers "github.com/TalesPalma/kafka_consume/databaseUsers"
 	logservice "github.com/TalesPalma/kafka_consume2/logService"
-	"github.com/TalesPalma/models"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
 
 const (
 	bootstrapServers = "localhost:9092"
-	topic            = "my_topic"
+	Topic            = "my_topic" // Nome do topico
 )
 
 type KafkaConsumer struct {
@@ -33,12 +31,7 @@ func NewKafkaConsumer(groupId string) *KafkaConsumer {
 	}
 
 	//Subscribe to topic
-	if groupId == "myGroup1" {
-		err = c.SubscribeTopics([]string{topic}, balaceAdorConsumer)
-
-	} else {
-		err = c.SubscribeTopics([]string{"validation"}, nil)
-	}
+	err = c.SubscribeTopics([]string{Topic}, nil)
 
 	if err != nil {
 		log.Fatalf("Failed to subscribe to topic: %s", err)
@@ -57,16 +50,8 @@ func (k *KafkaConsumer) GetMessages() {
 		// check for errors and print message
 		// else if check for timeout erro
 		if err == nil {
-			log.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-
-			if *msg.TopicPartition.Topic == "validation" {
-				logservice.Logservice(string(msg.Value))
-			} else {
-				var newPerson models.Person
-				newPerson.UnmarshalJson(msg.Value)
-				fmt.Printf("Name: %s\n age: %d", newPerson.Name, newPerson.Age)
-				databaseusers.SaveUsersLogs(newPerson)
-			}
+			log.Printf("Log message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+			logservice.Logservice(string(msg.Value))
 		} else if !err.(kafka.Error).IsTimeout() {
 			log.Printf("Consumer error: %v (%v)\n", err, msg)
 		}

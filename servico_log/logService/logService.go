@@ -1,8 +1,10 @@
 package logservice
 
 import (
+	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 func Logservice(msg string) {
@@ -13,5 +15,7 @@ func Logservice(msg string) {
 	}
 	defer file.Close()
 
-	file.WriteString(msg + "\n")
+	now := time.Now().Format("2006-01-02 15:04:05 PM")
+	msgMounted := fmt.Sprintf("%s: %s\n", now, msg)
+	file.WriteString(msgMounted)
 }
