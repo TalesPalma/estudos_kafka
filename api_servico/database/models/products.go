@@ -11,3 +11,10 @@ type Product struct {
 	Price       int    `json:"price"`
 	Description string `json:"description"`
 }
+
+func (p *Product) IsEmpty() bool {
+	if p.Code == "" || p.Name == "" || p.Price == 0 || p.Description == "" {
+		return true
+	}
+	return false
+}
