@@ -3,6 +3,7 @@ package kafkaservices
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
@@ -31,6 +32,8 @@ func (order *OrderDispatcher) SendMessage(msg []byte) {
 	go order.handlerEvents()
 
 	estoqueTopic := EstoqueTopic
+
+	//Enviar mensagem para o kafka
 	err := order.p.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &estoqueTopic, Partition: kafka.PartitionAny},
 		Value:          msg,
@@ -38,8 +41,14 @@ func (order *OrderDispatcher) SendMessage(msg []byte) {
 		nil,
 	)
 
+	//Tratamento de erro
 	if err != nil {
 		log.Println("Error producing message:", err)
+	}
+
+	flushTimeOut := 15 * time.Second
+	if remaining := order.p.Flush(int(flushTimeOut)); remaining > 0 {
+		log.Println("Remaining:", remaining)
 	}
 
 	order.p.Flush(15 * 1000)

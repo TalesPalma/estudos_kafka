@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	bootstrapServers = "localhost:9092"
+	bootstrapServers = "localhost:29092"
 	Topic            = "my_topic" // Nome do topico
 	EstoqueTopic     = "estoque_topic"
 )
