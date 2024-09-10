@@ -13,7 +13,7 @@ type Product struct {
 	Name  string
 	Price float64
 	Stock int
-	qty   int
+	Qty   int
 }
 
 func (p *Product) Unmarshal(data []byte) {

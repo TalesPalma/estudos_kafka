@@ -12,6 +12,7 @@ import (
 const (
 	bootstrapServers = "localhost:9092"
 	Topic            = "my_topic" // Nome do topico
+	EstoqueTopic     = "estoque_topic"
 )
 
 type KafkaConsumer struct {
@@ -30,12 +31,14 @@ func NewKafkaConsumer(groupId string) *KafkaConsumer {
 		log.Fatalf("Failed to create consumer: %s", err)
 	}
 
-	//Subscribe to topic
-	err = c.SubscribeTopics([]string{Topic}, nil)
+	//Subscribe to topic my_topic and estoque_topic
+	err = c.SubscribeTopics([]string{Topic, EstoqueTopic}, nil)
 
 	if err != nil {
-		log.Fatalf("Failed to subscribe to topic: %s", err)
+		log.Fatalf("Failed to subscribe to topic my topic and estoque_topic: %s", err)
 	}
+
+	log.Println("Registred on topics my topic and estoque_topic ...")
 
 	return &KafkaConsumer{
 		consumer: c,
@@ -45,16 +48,13 @@ func NewKafkaConsumer(groupId string) *KafkaConsumer {
 func (k *KafkaConsumer) GetMessages() {
 	run := true
 	for run {
-		msg, err := k.consumer.ReadMessage(time.Second) // wait for message for 1 second
+		msg, err := k.consumer.ReadMessage(time.Second * 3) // wait for message for 1 second
 
-		// check for errors and print message
-		// else if check for timeout erro
 		if err == nil {
-			log.Printf("Log message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-			logservice.Logservice(string(msg.Value))
-		} else if !err.(kafka.Error).IsTimeout() {
-			log.Printf("Consumer error: %v (%v)\n", err, msg)
+			processMessage(msg)
+			continue
 		}
+
 	}
 
 	//Close consumer
@@ -76,4 +76,14 @@ func balaceAdorConsumer(c *kafka.Consumer, e kafka.Event) error {
 		c.Unassign()
 	}
 	return nil
+}
+
+func processMessage(msg *kafka.Message) {
+	log.Printf("Log message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+	switch *msg.TopicPartition.Topic {
+	case EstoqueTopic:
+		logservice.LogEstoque(string(msg.Value))
+	case Topic:
+		logservice.Logservices(string(msg.Value))
+	}
 }

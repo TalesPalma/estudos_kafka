@@ -1,0 +1,7 @@
+2024-09-10 14:55:23 PM: New Product created: novo produto 
+2024-09-10 14:55:23 PM: New Product created: novo produto 
+2024-09-10 14:55:23 PM: New Product created: novo produto 
+2024-09-10 14:55:23 PM: New Product created: novo produto 
+2024-09-10 15:09:56 PM: Product updated: novo produto 
+2024-09-10 15:10:18 PM: Product updated: novo produto 
+2024-09-10 15:11:02 PM: New Product created: dexter loko produto 

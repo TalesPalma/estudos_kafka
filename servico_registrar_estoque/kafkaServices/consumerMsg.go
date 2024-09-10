@@ -1,6 +1,7 @@
 package kafkaservices
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/TalesPalma/kafka_consume/database"
 	"github.com/TalesPalma/kafka_consume/database/models"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"gorm.io/gorm"
 )
 
 const (
@@ -79,11 +81,50 @@ func balaceAdorConsumer(c *kafka.Consumer, e kafka.Event) error {
 	return nil
 }
 
+// Funcao para inserir o novo produto ou atualizar o estoque
+// Ela deserializa o json e insere ou atualiza o estoque
 func insertProductDatabase(msg []byte) {
 	var product models.Product
 	product.Unmarshal(msg)
-	err := database.DB.Create(&product)
-	if err == nil {
-		log.Println("Product inserido do banco de dados")
+	verificarSeOProdutoJaEstaRegistradoNoBanco(product)
+}
+
+// Se o produto já existe então será atualizado o estoque e se não existe ele será criado
+// E caso ele existe, ele será somando ao estoque o valor da quantidade adicionada
+func verificarSeOProdutoJaEstaRegistradoNoBanco(product models.Product) {
+	kafkaProducer := NewkafkaProducer()
+	productDB, err := buscarProdutoNoBanco(product.Name)
+
+	if err != nil {
+		log.Println("Error when trying to find product", err)
+		return
 	}
+
+	if productDB != nil {
+		product.Stock = product.Stock + product.Qty
+		database.DB.Save(&product)
+		log.Println("Product updated:", product)
+		kafkaProducer.SendMessage([]byte("Product updated: " + product.Name))
+
+	} else {
+		database.DB.Create(&product)
+		log.Println("Product created: ", product)
+		kafkaProducer.SendMessage([]byte("New Product created: " + product.Name))
+	}
+}
+
+func buscarProdutoNoBanco(s string) (*models.Product, error) {
+	var productDB models.Product
+	result := database.DB.Where("name = ?", s).First(&productDB)
+	if result.Error != nil {
+
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			log.Println("Produto não encontrado ou seja sera criado", result.Error)
+			return nil, nil
+		}
+
+		log.Println("Product not found: ", productDB)
+		return nil, result.Error
+	}
+	return &productDB, nil
 }
