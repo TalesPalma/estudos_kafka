@@ -15,13 +15,13 @@ const (
 	EstoqueTopic     = "estoque_topic"
 )
 
-type KafkaConsumer struct {
+type OrderProcessor struct {
 	consumer *kafka.Consumer
 }
 
-func NewKafkaConsumer(groupId string) *KafkaConsumer {
+func NewOrderProcessor(groupId string) *OrderProcessor {
 	//Create consumer
-	c, err := kafka.NewConsumer(&kafka.ConfigMap{
+	order, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": bootstrapServers,
 		"group.id":          groupId,
 		"auto.offset.reset": "earliest",
@@ -32,7 +32,7 @@ func NewKafkaConsumer(groupId string) *KafkaConsumer {
 	}
 
 	//Subscribe to topic my_topic and estoque_topic
-	err = c.SubscribeTopics([]string{Topic, EstoqueTopic}, nil)
+	err = order.SubscribeTopics([]string{Topic, EstoqueTopic}, nil)
 
 	if err != nil {
 		log.Fatalf("Failed to subscribe to topic my topic and estoque_topic: %s", err)
@@ -40,15 +40,15 @@ func NewKafkaConsumer(groupId string) *KafkaConsumer {
 
 	log.Println("Registred on topics my topic and estoque_topic ...")
 
-	return &KafkaConsumer{
-		consumer: c,
+	return &OrderProcessor{
+		consumer: order,
 	}
 }
 
-func (k *KafkaConsumer) GetMessages() {
+func (order *OrderProcessor) GetMessages() {
 	run := true
 	for run {
-		msg, err := k.consumer.ReadMessage(time.Second * 3) // wait for message for 1 second
+		msg, err := order.consumer.ReadMessage(time.Second * 3) // wait for message for 1 second
 
 		if err == nil {
 			processMessage(msg)
@@ -58,7 +58,7 @@ func (k *KafkaConsumer) GetMessages() {
 	}
 
 	//Close consumer
-	err := k.consumer.Close()
+	err := order.consumer.Close()
 	if err != nil {
 		log.Fatalf("Failed to close consumer: %s", err)
 	}
@@ -66,14 +66,14 @@ func (k *KafkaConsumer) GetMessages() {
 }
 
 // Balacea o consumer nas particoes atualizadas pelo kafka
-func balaceAdorConsumer(c *kafka.Consumer, e kafka.Event) error {
+func balaceAdorConsumer(order *kafka.Consumer, e kafka.Event) error {
 	switch ev := e.(type) {
 	case kafka.AssignedPartitions:
 		fmt.Printf("Assigned partitions: %v\n", ev.Partitions)
-		c.Assign(ev.Partitions)
+		order.Assign(ev.Partitions)
 	case kafka.RevokedPartitions:
 		fmt.Printf("Revoked partitions: %v\n", ev.Partitions)
-		c.Unassign()
+		order.Unassign()
 	}
 	return nil
 }

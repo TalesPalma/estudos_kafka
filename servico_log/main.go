@@ -7,6 +7,6 @@ const (
 )
 
 func main() {
-	kafkaConsumer := kafkaservices.NewKafkaConsumer(groupId)
+	kafkaConsumer := kafkaservices.NewOrderProcessor(groupId)
 	kafkaConsumer.GetMessages()
 }

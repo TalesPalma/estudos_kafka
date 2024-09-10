@@ -12,18 +12,18 @@ const (
 	Topic            = "my_topic"       // Nome do topico
 )
 
-type kafkaProducer struct {
+type OrderDispatcher struct {
 	p     *kafka.Producer
 	topic string
 }
 
-var Producer kafkaProducer
+var Producer OrderDispatcher
 
 func InitKafka() {
-	Producer = NewKafkaProducer()
+	Producer = NewOrderDispatcher()
 }
 
-func NewKafkaProducer() kafkaProducer {
+func NewOrderDispatcher() OrderDispatcher {
 	hostName, err := os.Hostname() // pega o nome do host para o kafka
 
 	if err != nil {
@@ -41,13 +41,13 @@ func NewKafkaProducer() kafkaProducer {
 	}
 
 	// Retorna o producer
-	return kafkaProducer{
+	return OrderDispatcher{
 		p: p,
 	}
 
 }
 
-func (producer *kafkaProducer) SendMsg(msg []byte) {
+func (producer *OrderDispatcher) SendMsg(msg []byte) {
 
 	topico := Topic
 	err := producer.p.Produce(&kafka.Message{
@@ -67,7 +67,7 @@ func (producer *kafkaProducer) SendMsg(msg []byte) {
 	producer.p.Flush(15 * 1000)
 }
 
-func (producer *kafkaProducer) handleEvents() {
+func (producer *OrderDispatcher) handleEvents() {
 	// ele fica aguardando a mensagem ser enviada para o kafka e depois vai para a proxima
 
 	// Pega todos os eventos

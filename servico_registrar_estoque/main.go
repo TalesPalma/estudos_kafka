@@ -15,6 +15,6 @@ func main() {
 }
 
 func initkafka() {
-	kafkaConsumer := kafkaservices.NewKafkaConsumer(groupId)
+	kafkaConsumer := kafkaservices.NewOrderProcessor(groupId)
 	kafkaConsumer.GetMessages()
 }

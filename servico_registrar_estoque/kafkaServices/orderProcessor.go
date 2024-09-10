@@ -17,11 +17,11 @@ const (
 	Topic            = "my_topic"
 )
 
-type KafkaConsumer struct {
+type OrderProcessor struct {
 	consumer *kafka.Consumer
 }
 
-func NewKafkaConsumer(groupId string) *KafkaConsumer {
+func NewOrderProcessor(groupId string) *OrderProcessor {
 	//Create consumer
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers": bootstrapServers,
@@ -40,15 +40,15 @@ func NewKafkaConsumer(groupId string) *KafkaConsumer {
 		log.Fatalf("Failed to subscribe to topic: %s", err)
 	}
 
-	return &KafkaConsumer{
+	return &OrderProcessor{
 		consumer: c,
 	}
 }
 
-func (k *KafkaConsumer) GetMessages() {
+func (order *OrderProcessor) GetMessages() {
 	run := true
 	for run {
-		msg, err := k.consumer.ReadMessage(time.Second) // wait for message for 1 second
+		msg, err := order.consumer.ReadMessage(time.Second) // wait for message for 1 second
 
 		// check for errors and print message
 		// else if check for timeout err
@@ -61,7 +61,7 @@ func (k *KafkaConsumer) GetMessages() {
 	}
 
 	//Close consumer
-	err := k.consumer.Close()
+	err := order.consumer.Close()
 	if err != nil {
 		log.Fatalf("Failed to close consumer: %s", err)
 	}
@@ -92,7 +92,7 @@ func insertProductDatabase(msg []byte) {
 // Se o produto já existe então será atualizado o estoque e se não existe ele será criado
 // E caso ele existe, ele será somando ao estoque o valor da quantidade adicionada
 func verificarSeOProdutoJaEstaRegistradoNoBanco(product models.Product) {
-	kafkaProducer := NewkafkaProducer()
+	kafkaProducer := NewOrderDispatcher()
 	productDB, err := buscarProdutoNoBanco(product.Name)
 
 	if err != nil {
