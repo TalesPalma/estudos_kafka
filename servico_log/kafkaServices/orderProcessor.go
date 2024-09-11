@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	bootstrapServers = "localhost:29092"
-	Topic            = "my_topic" // Nome do topico
+	bootstrapServers = "localhost:29092,localhost:39092,localhost:49092" // Endereços dos brokers
+	Topic            = "my_topic"                                        // Nome do topico
 	EstoqueTopic     = "estoque_topic"
 )
 
@@ -25,6 +25,8 @@ func NewOrderProcessor(groupId string) *OrderProcessor {
 		"bootstrap.servers": bootstrapServers,
 		"group.id":          groupId,
 		"auto.offset.reset": "earliest",
+		// Configurações SSL
+		"security.protocol": "PLAINTEXT",
 	})
 
 	if err != nil {

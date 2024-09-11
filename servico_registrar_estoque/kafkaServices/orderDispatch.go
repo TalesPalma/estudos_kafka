@@ -20,7 +20,7 @@ type OrderDispatcher struct {
 func NewOrderDispatcher() OrderDispatcher {
 	p := OrderDispatcher{}
 	p.p, p.err = kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
+		"bootstrap.servers": bootstrapServers,
 		"client.id":         "estoque_producer",
 	})
 

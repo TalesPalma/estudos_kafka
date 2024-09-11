@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	BootstrapServers = "localhost:9092" // Endereços dos brokers
-	Topic            = "my_topic"       // Nome do topico
+	BootstrapServers = "localhost:29092,localhost:39092,localhost:49092" // Endereços dos brokers
+	Topic            = "my_topic"                                        // Nome do topico
 )
 
 type OrderDispatcher struct {
@@ -32,8 +32,11 @@ func NewOrderDispatcher() OrderDispatcher {
 
 	// Cria o producer
 	p, err := kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": BootstrapServers, // Endereços dos brokers
-		"client.id":         hostName,         // nome do host como id para o kafka
+		"bootstrap.servers":  BootstrapServers, // Endereços dos brokers
+		"client.id":          hostName,         // nome do host como id para o kafka
+		"acks":               "all",
+		"retries":            5,
+		"enable.auto.commit": true,
 	})
 
 	if err != nil {

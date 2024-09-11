@@ -11,12 +11,12 @@ type Product struct {
 	gorm.Model
 	Code        string `gorm:"unique;not null" json:"code"`
 	Name        string `json:"name"`
-	Price       int    `json:"price"`
+	Price       string `json:"price"`
 	Description string `json:"description"`
 }
 
 func (p *Product) IsEmpty() bool {
-	if p.Code == "" || p.Name == "" || p.Price == 0 || p.Description == "" {
+	if p.Code == "" || p.Name == "" || p.Price == "" || p.Description == "" {
 		return true
 	}
 	return false

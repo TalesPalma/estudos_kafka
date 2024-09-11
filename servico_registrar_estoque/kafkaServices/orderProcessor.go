@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	bootstrapServers = "localhost:9092"
+	bootstrapServers = "localhost:29092,localhost:39092,localhost:49092" // Endereços dos brokers
 	Topic            = "my_topic"
 )
 
@@ -39,6 +39,8 @@ func NewOrderProcessor(groupId string) *OrderProcessor {
 	if err != nil {
 		log.Fatalf("Failed to subscribe to topic: %s", err)
 	}
+
+	fmt.Println("Registred on topics estoque_topic ...")
 
 	return &OrderProcessor{
 		consumer: c,
