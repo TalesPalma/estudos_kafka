@@ -11,6 +11,7 @@ const (
 	BootstrapServers = "localhost:29092,localhost:39092,localhost:49092" // Endereços dos brokers
 	Topic            = "my_topic"                                        // Nome do topico
 	RelatorioTopic   = "relatorio_topic"
+	GerarRelatorio   = "Gerar Relatorio"
 )
 
 type OrderDispatcher struct {
@@ -51,7 +52,7 @@ func NewOrderDispatcher() OrderDispatcher {
 
 }
 
-func (producer *OrderDispatcher) SendMsg(msg []byte) {
+func (producer *OrderDispatcher) SendMsg(msg []byte, gerarRelatorio bool) {
 	topico := Topic
 	err := producer.p.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &topico, Partition: kafka.PartitionAny},
@@ -63,16 +64,19 @@ func (producer *OrderDispatcher) SendMsg(msg []byte) {
 		log.Fatalf("Erro ao enviar a mensagem para o primeiro topico: %v", err)
 	}
 
-	// Mandar msg parta o relatorio topic tambem
-	topico = RelatorioTopic
-	err = producer.p.Produce(&kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &topico, Partition: kafka.PartitionAny},
-		Value:          msg},
-		nil,
-	)
+	if gerarRelatorio {
+		// Mandar msg parta o relatorio topic tambem
+		topico = RelatorioTopic
+		err = producer.p.Produce(&kafka.Message{
+			TopicPartition: kafka.TopicPartition{Topic: &topico, Partition: kafka.PartitionAny},
+			Value:          msg},
+			nil,
+		)
 
-	if err != nil {
-		log.Fatalf("Erro ao enviar a mensagem para o relatorio topic: %v", err)
+		if err != nil {
+			log.Fatalf("Erro ao enviar a mensagem para o relatorio topic: %v", err)
+		}
+
 	}
 
 	// ele fica aguardando a mensagem ser enviada para o kafka e depois vai para a proxima

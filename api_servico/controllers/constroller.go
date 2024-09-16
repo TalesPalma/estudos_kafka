@@ -40,7 +40,7 @@ func PostProducts(c *gin.Context) {
 		})
 	} else {
 		c.JSON(http.StatusCreated, product)
-		kafkaservices.Producer.SendMsg(product.MarshalJson())
+		kafkaservices.Producer.SendMsg(product.MarshalJson(), false)
 	}
 
 }
