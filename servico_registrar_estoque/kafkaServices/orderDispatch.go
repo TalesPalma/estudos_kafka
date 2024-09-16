@@ -18,13 +18,14 @@ type OrderDispatcher struct {
 }
 
 func NewOrderDispatcher() OrderDispatcher {
-	p := OrderDispatcher{}
-	p.p, p.err = kafka.NewProducer(&kafka.ConfigMap{
-		"bootstrap.servers": bootstrapServers,
-		"client.id":         "estoque_producer",
+	order := OrderDispatcher{}
+	order.p, order.err = kafka.NewProducer(&kafka.ConfigMap{
+		"bootstrap.servers": bootstrapServers,   // Endereços dos brokers
+		"client.id":         "estoque_producer", // ID do consumidor
+		"acks":              "all",              // Esperar todas as replicas do cluster está em syncronia
 	})
 
-	return p
+	return order
 }
 
 func (order *OrderDispatcher) SendMessage(msg []byte) {
