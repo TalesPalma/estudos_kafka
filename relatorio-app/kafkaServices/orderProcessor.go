@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"www.github.com/TalesPalma/relatorio"
 )
 
 const (
@@ -80,4 +81,5 @@ func balaceAdorConsumer(order *kafka.Consumer, e kafka.Event) error {
 
 func processMessage(msg *kafka.Message) {
 	log.Printf("Log message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+	relatorio.GenerateRelatorio(msg.Value)
 }
