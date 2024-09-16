@@ -3,13 +3,16 @@ package relatorio
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 func GenerateRelatorio(msg []byte) error {
 
 	dataFormat := time.Now().Format("2006-01-02")
-	file, err := os.Create(fmt.Sprintf("relatorio_%s.txt", dataFormat))
+	fileName := fmt.Sprintf("relatorio_%s.txt", dataFormat)
+	pathFile := filepath.Join("relatorios", fileName)
+	file, err := os.Create(pathFile)
 
 	if err != nil {
 		return err

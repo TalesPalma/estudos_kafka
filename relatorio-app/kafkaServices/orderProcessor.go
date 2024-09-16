@@ -81,5 +81,8 @@ func balaceAdorConsumer(order *kafka.Consumer, e kafka.Event) error {
 
 func processMessage(msg *kafka.Message) {
 	log.Printf("Log message on %s: %s\n", msg.TopicPartition, string(msg.Value))
-	relatorio.GenerateRelatorio(msg.Value)
+	err := relatorio.GenerateRelatorio(msg.Value)
+	if err != nil {
+		log.Fatalf("Failed to generate relatorio: %s", err)
+	}
 }
