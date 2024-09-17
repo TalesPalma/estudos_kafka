@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/google/uuid"
 )
 
 const (
@@ -34,24 +35,32 @@ func (order *OrderDispatcher) SendMessage(msg []byte) {
 
 	estoqueTopic := EstoqueTopic
 
-	//Enviar mensagem para o kafka
-	err := order.p.Produce(&kafka.Message{
+	correlationId := generateCorrelationId()
+	key := correlationId
+
+	//Criar mensagem com correlationId
+	msgKafka := kafka.Message{
 		TopicPartition: kafka.TopicPartition{Topic: &estoqueTopic, Partition: kafka.PartitionAny},
 		Value:          msg,
-	},
-		nil,
-	)
+		Key:            []byte(key),
+		Headers:        []kafka.Header{{Key: "mycorrelationid", Value: []byte(correlationId)}},
+	}
 
-	//Tratamento de erro
+	//Enviar mensagem para o kafka
+	err := order.p.Produce(&msgKafka, nil)
+
+	//Tratamento de erro caso a mensagem não seja enviada
 	if err != nil {
 		log.Println("Error producing message:", err)
 	}
 
+	// Flush messages depois de 15 segundos
 	flushTimeOut := 15 * time.Second
 	if remaining := order.p.Flush(int(flushTimeOut)); remaining > 0 {
 		log.Println("Remaining:", remaining)
 	}
 
+	// Fechar producer
 	order.p.Flush(15 * 1000)
 }
 
@@ -66,4 +75,9 @@ func (order *OrderDispatcher) handlerEvents() {
 			}
 		}
 	}
+}
+
+// Gerador de correlation id
+func generateCorrelationId() string {
+	return uuid.New().String()
 }

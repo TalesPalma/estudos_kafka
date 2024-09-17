@@ -9,7 +9,6 @@ import (
 	"github.com/TalesPalma/kafka_consume/database"
 	"github.com/TalesPalma/kafka_consume/database/models"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -46,6 +45,7 @@ func NewOrderProcessor(groupId string) *OrderProcessor {
 	return &OrderProcessor{
 		consumer: c,
 	}
+
 }
 
 func (order *OrderProcessor) GetMessages() {
@@ -55,9 +55,11 @@ func (order *OrderProcessor) GetMessages() {
 
 		// check for errors and print message
 		// else if check for timeout err
+
 		if err == nil {
 			log.Printf("Message on %s: %s\n", msg.TopicPartition, string(msg.Value))
 			insertProductDatabase(msg.Value)
+			log.Printf("My correlation id %s", consumeMessagesWithCorrelationId(msg))
 		} else if !err.(kafka.Error).IsTimeout() {
 			log.Printf("Consumer error: %v (%v)\n", err, msg)
 		}
@@ -71,28 +73,16 @@ func (order *OrderProcessor) GetMessages() {
 
 }
 
-// Gerador de correlation id
-func generateCorrelationId() string {
-	return uuid.New().String()
-}
-
-// Enviar msg usando um correlatio Id:
-func produceMessage(producer *kafka.Producer, msg []byte, key string, correlationId string) error {
-	topic := EstoqueTopic
-	message := &kafka.Message{
-		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
-		Value:          msg,
-		Key:            []byte(key),
-		Headers:        []kafka.Header{{Key: "mycorrelationid", Value: []byte(correlationId)}},
+// Consumidor de correlations ID:
+func consumeMessagesWithCorrelationId(msg *kafka.Message) string {
+	correlationId := ""
+	for _, header := range msg.Headers {
+		if header.Key == "mycorrelationid" {
+			correlationId = string(header.Value)
+			break
+		}
 	}
-
-	err := producer.Produce(message, nil)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return fmt.Sprintf("Mensagem recevuda cin Cirrekatuib ID : %s \n", correlationId)
 }
 
 // Balacea o consumer nas particoes atualizadas pelo kafka
