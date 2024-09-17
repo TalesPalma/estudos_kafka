@@ -46,7 +46,7 @@ func NewOrderProcessor(groupId string) *OrderProcessor {
 	}
 }
 
-func (order *OrderProcessor) GetMessages() {
+func (order *OrderProcessor) GetMessages() string {
 	run := true
 	for run {
 		msg, err := order.consumer.ReadMessage(time.Second * 3) // wait for message for 1 second
@@ -64,6 +64,7 @@ func (order *OrderProcessor) GetMessages() {
 		log.Fatalf("Failed to close consumer: %s", err)
 	}
 
+	return "Relatorio gerado com sucesso"
 }
 
 // Balacea o consumer nas particoes atualizadas pelo kafka
@@ -81,6 +82,7 @@ func balaceAdorConsumer(order *kafka.Consumer, e kafka.Event) error {
 
 func processMessage(msg *kafka.Message) {
 	log.Printf("Log message on %s: %s\n", msg.TopicPartition, string(msg.Value))
+	//Generate Relatorio
 	err := relatorio.GenerateRelatorio(msg.Value)
 	if err != nil {
 		log.Fatalf("Failed to generate relatorio: %s", err)

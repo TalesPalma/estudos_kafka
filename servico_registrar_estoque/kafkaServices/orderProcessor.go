@@ -9,6 +9,7 @@ import (
 	"github.com/TalesPalma/kafka_consume/database"
 	"github.com/TalesPalma/kafka_consume/database/models"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -68,6 +69,30 @@ func (order *OrderProcessor) GetMessages() {
 		log.Fatalf("Failed to close consumer: %s", err)
 	}
 
+}
+
+// Gerador de correlation id
+func generateCorrelationId() string {
+	return uuid.New().String()
+}
+
+// Enviar msg usando um correlatio Id:
+func produceMessage(producer *kafka.Producer, msg []byte, key string, correlationId string) error {
+	topic := EstoqueTopic
+	message := &kafka.Message{
+		TopicPartition: kafka.TopicPartition{Topic: &topic, Partition: kafka.PartitionAny},
+		Value:          msg,
+		Key:            []byte(key),
+		Headers:        []kafka.Header{{Key: "mycorrelationid", Value: []byte(correlationId)}},
+	}
+
+	err := producer.Produce(message, nil)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Balacea o consumer nas particoes atualizadas pelo kafka
